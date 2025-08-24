@@ -30,9 +30,10 @@ export class AudioHandler {
 			new Notice(`Sending audio data size: ${blob.size / 1000} KB`);
 		}
 
-		if (!this.plugin.settings.apiKey) {
+		// For local API, API key is optional
+		if (!this.plugin.settings.apiKey && !this.plugin.settings.apiUrl.includes('localhost')) {
 			new Notice(
-				"API key is missing. Please add your API key in the settings."
+				"API key is missing. Please add your API key in the settings for OpenAI API, or use localhost for local Whisper API."
 			);
 			return;
 		}
@@ -63,14 +64,20 @@ export class AudioHandler {
 			if (this.plugin.settings.debugMode) {
 				new Notice("Parsing audio data:" + fileName);
 			}
+			// Prepare headers - only include Authorization for non-localhost APIs
+			const headers: any = {
+				"Content-Type": "multipart/form-data",
+			};
+			
+			if (this.plugin.settings.apiKey && !this.plugin.settings.apiUrl.includes('localhost')) {
+				headers.Authorization = `Bearer ${this.plugin.settings.apiKey}`;
+			}
+
 			const response = await axios.post(
 				this.plugin.settings.apiUrl,
 				formData,
 				{
-					headers: {
-						"Content-Type": "multipart/form-data",
-						Authorization: `Bearer ${this.plugin.settings.apiKey}`,
-					},
+					headers: headers,
 				}
 			);
 

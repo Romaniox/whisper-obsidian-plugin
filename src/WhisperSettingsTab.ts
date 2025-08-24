@@ -70,7 +70,7 @@ export class WhisperSettingsTab extends PluginSettingTab {
 	private createApiKeySetting(): void {
 		this.createTextSetting(
 			"API Key",
-			"Enter your OpenAI API key",
+			"Enter your OpenAI API key (leave empty for local Whisper API)",
 			"sk-...xxxx",
 			this.plugin.settings.apiKey,
 			async (value) => {
@@ -83,8 +83,8 @@ export class WhisperSettingsTab extends PluginSettingTab {
 	private createApiUrlSetting(): void {
 		this.createTextSetting(
 			"API URL",
-			"Specify the endpoint that will be used to make requests to",
-			"https://api.your-custom-url.com",
+			"Specify the endpoint for API requests (default: local Whisper API)",
+			"http://localhost:8000/v1/audio/transcriptions",
 			this.plugin.settings.apiUrl,
 			async (value) => {
 				this.plugin.settings.apiUrl = value;
@@ -96,7 +96,7 @@ export class WhisperSettingsTab extends PluginSettingTab {
 	private createModelSetting(): void {
 		this.createTextSetting(
 			"Model",
-			"Specify the machine learning model to use for generating text",
+			"Specify the Whisper model to use (whisper-1 for OpenAI, or tiny/base/small/medium/large for local)",
 			"whisper-1",
 			this.plugin.settings.model,
 			async (value) => {

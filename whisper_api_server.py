@@ -87,6 +87,7 @@ async def transcribe_audio(
     Returns:
         JSON with transcribed text
     """
+    logger.info(f"Transcribing audio file: {file.filename}")
     try:
         # Validate file type
         if not file.content_type or not file.content_type.startswith("audio/"):
@@ -130,8 +131,13 @@ async def transcribe_audio(
 
             logger.info("Transcription completed successfully")
 
+            # Ensure first word starts with capital letter
+            transcribed_text = result["text"].strip()
+            if transcribed_text:
+                transcribed_text = transcribed_text[0].upper() + transcribed_text[1:]
+            
             return {
-                "text": result["text"].strip(),
+                "text": transcribed_text,
                 "language": result.get("language", language),
                 "segments": result.get("segments", []),
             }
@@ -181,7 +187,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "whisper_api_server:app",
         host="0.0.0.0",
-        port=8000,
+        port=6431,
         reload=True,
         log_level="info",
     )

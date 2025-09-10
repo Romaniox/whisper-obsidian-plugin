@@ -18,7 +18,7 @@ samplerate = 16000     # Whisper любит 16кГц
 # === Глобальные переменные ===
 is_recording = False
 recording_data = []
-
+LANGUAGE = "ru"  # язык по умолчанию
 
 
 def callback(indata, frames, time_info, status):
@@ -40,7 +40,7 @@ def toggle_recording():
 
 
 def save_and_transcribe():
-    global recording_data
+    global recording_data, LANGUAGE
     if not recording_data:
         return
 
@@ -52,7 +52,7 @@ def save_and_transcribe():
         wav.write(f.name, samplerate, audio)
         temp_path = f.name
 
-    print("📤 Отправка на сервер...")
+    print(f"📤 Отправка на сервер (язык: {LANGUAGE})...")
     try:
         with open(temp_path, "rb") as f:
             files = {"file": ("audio.wav", f, "audio/wav")}
@@ -71,12 +71,12 @@ def save_and_transcribe():
         if USE_CLIPBOARD:
             old_clipboard = pyperclip.paste()  # сохраняем, что было в буфере
             pyperclip.copy(text)
-            time.sleep(0.05)  # чтобы буфер успел обновиться
+            time.sleep(0.05)
             keyboard.press_and_release("ctrl+v")
             time.sleep(0.05)
             pyperclip.copy(old_clipboard)  # восстанавливаем
         else:
-            keyboard.write(text, delay=0)  # быстрый посимвольный ввод
+            keyboard.write(text, delay=0)
 
     except Exception as e:
         print("❌ Ошибка:", e)
@@ -84,9 +84,19 @@ def save_and_transcribe():
         os.unlink(temp_path)
 
 
+def set_language(lang_code, lang_name):
+    global LANGUAGE
+    LANGUAGE = lang_code
+    print(f"🌐 Язык переключён на {lang_name} ({lang_code})")
+
+
 def main():
     print("Нажми Alt+Q для старта/остановки записи. alt+Esc для выхода.")
+    print("Alt+1 = русский, Alt+2 = английский")
+
     keyboard.add_hotkey("alt+q", toggle_recording)
+    keyboard.add_hotkey("alt+1", lambda: set_language("ru", "Русский"))
+    keyboard.add_hotkey("alt+2", lambda: set_language("en", "Английский"))
 
     with sd.InputStream(samplerate=samplerate, channels=1, callback=callback):
         keyboard.wait("alt+esc")

@@ -69,9 +69,12 @@ def save_and_transcribe():
 
         # Вставляем текст в активное поле ввода
         if USE_CLIPBOARD:
+            old_clipboard = pyperclip.paste()  # сохраняем, что было в буфере
             pyperclip.copy(text)
             time.sleep(0.05)  # чтобы буфер успел обновиться
             keyboard.press_and_release("ctrl+v")
+            time.sleep(0.05)
+            pyperclip.copy(old_clipboard)  # восстанавливаем
         else:
             keyboard.write(text, delay=0)  # быстрый посимвольный ввод
 

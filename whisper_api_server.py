@@ -72,7 +72,7 @@ async def get_available_models():
 async def transcribe_audio(
     file: UploadFile = File(...),
     model: Optional[str] = Form("turbo"),
-    language: Optional[str] = Form("en"),
+    language: Optional[str] = Form("ru"),
     prompt: Optional[str] = Form(""),
 ):
     """

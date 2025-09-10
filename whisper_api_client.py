@@ -8,10 +8,17 @@ import pyperclip
 import time
 import os
 
+# === Настройки ===
 API_URL = "http://127.0.0.1:6431/transcribe"  # твой локальный API
+LANGUAGE = "ru"        # "ru", "en", "auto"
+MODEL = "turbo"        # Whisper модель: tiny, base, small, medium, large, turbo
+USE_CLIPBOARD = True   # True = вставка через Ctrl+V, False = посимвольный ввод
+samplerate = 16000     # Whisper любит 16кГц
+
+# === Глобальные переменные ===
 is_recording = False
 recording_data = []
-samplerate = 16000  # Whisper любит 16кГц
+
 
 
 def callback(indata, frames, time_info, status):
@@ -50,9 +57,9 @@ def save_and_transcribe():
         with open(temp_path, "rb") as f:
             files = {"file": ("audio.wav", f, "audio/wav")}
             data = {
-                "language": "ru",   # 🔹 сюда ставишь нужный язык ("en", "ru", "auto" и т.д.)
-                "model": "turbo",   # при желании можно менять
-                "prompt": ""        # опционально
+                "language": LANGUAGE,
+                "model": MODEL,
+                "prompt": ""
             }
             resp = requests.post(API_URL, files=files, data=data)
 
@@ -60,10 +67,13 @@ def save_and_transcribe():
         text = resp.json()["text"].strip()
         print("✅ Распознано:", text)
 
-        # Вставляем текст на место курсора
-        pyperclip.copy(text)
-        time.sleep(0.1)
-        keyboard.write(text)
+        # Вставляем текст в активное поле ввода
+        if USE_CLIPBOARD:
+            pyperclip.copy(text)
+            time.sleep(0.05)  # чтобы буфер успел обновиться
+            keyboard.press_and_release("ctrl+v")
+        else:
+            keyboard.write(text, delay=0)  # быстрый посимвольный ввод
 
     except Exception as e:
         print("❌ Ошибка:", e)

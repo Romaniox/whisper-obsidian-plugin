@@ -85,11 +85,11 @@ def save_and_transcribe():
 
 
 def main():
-    print("Нажми Alt+Q для старта/остановки записи. Esc для выхода.")
+    print("Нажми Alt+Q для старта/остановки записи. alt+Esc для выхода.")
     keyboard.add_hotkey("alt+q", toggle_recording)
 
     with sd.InputStream(samplerate=samplerate, channels=1, callback=callback):
-        keyboard.wait("esc")
+        keyboard.wait("alt+esc")
 
 
 if __name__ == "__main__":
